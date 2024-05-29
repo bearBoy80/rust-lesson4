@@ -1,0 +1,5 @@
+### test simple http
+GET http://127.0.0.1:8080/test
+
+### tet
+GET https://example.com/topics/1 HTTP/1.1
