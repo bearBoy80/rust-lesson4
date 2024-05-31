@@ -8,7 +8,7 @@ use dashmap::DashMap;
 use futures::{stream::SplitStream, SinkExt, StreamExt};
 use tokio::{net::TcpStream, sync::mpsc};
 use tokio_util::codec::{Framed, LinesCodec};
-use tracing::warn;
+use tracing::{info, warn};
 
 #[derive(Debug, Default)]
 pub struct State {
@@ -77,6 +77,7 @@ impl State {
         }
     }
     pub async fn broadcast(&self, addr: SocketAddr, message: Arc<Message>) {
+        info!("broadcasting data :{} to clients",message);
         for peer in self.peers.iter() {
             if peer.key() == &addr {
                 continue;
