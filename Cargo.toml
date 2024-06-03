@@ -1,4 +1,6 @@
-workspace = { members = [ "short-url","simple-chat"] }
+[workspace]
+members = ["simple-chat", "short-url"]
+resolver = "2"
 [package]
 name = "rust-lession-4"
 version = "0.1.0"
