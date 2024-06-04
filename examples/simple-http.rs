@@ -2,12 +2,11 @@ use std::{
     env, fs,
     io::{BufRead, BufReader, Write},
     net::{TcpListener, TcpStream},
-    thread::Thread,
 };
 
 fn main() {
-    let server_addres = "127.0.0.1:8080";
-    let tcp = TcpListener::bind(server_addres).unwrap();
+    let server_address = "127.0.0.1:8080";
+    let tcp = TcpListener::bind(server_address).unwrap();
     for stream in tcp.incoming() {
         let stream = stream.unwrap();
         handle_connection(stream);

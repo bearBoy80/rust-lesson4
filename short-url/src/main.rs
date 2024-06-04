@@ -1,3 +1,5 @@
+use std::{thread, time::Duration};
+
 use axum::{
     extract::{Path, State},
     http::{header::LOCATION, HeaderMap, StatusCode},
@@ -5,7 +7,6 @@ use axum::{
     routing::{get, post},
     Json, Router,
 };
-use serde_json::json;
 use short_url::{
     models::{get_short_url, insert_short_url},
     AppError, AppState, ShortenReq, ShortenRes, ADDR,
@@ -37,10 +38,25 @@ async fn shorten(
     Json(data): Json<ShortenReq>,
 ) -> Result<impl IntoResponse, StatusCode> {
     let inner = state.inner;
-    let url_record = insert_short_url(&inner.pool, &data.url).await?;
-    let result = Json(ShortenRes {
-        url: url_record.url,
-    });
+    let mut short_url = String::from("");
+    loop {
+        let url_record = insert_short_url(&inner.pool, &data.url).await;
+        match url_record {
+            Ok(record) => {
+                short_url = record.url;
+                break;
+            }
+            Err(err) => {
+                if let AppError::PgDuplicate(_err) = err {
+                    info!("find duplicate key ,begin try again");
+                    continue;
+                } else {
+                    return Ok((StatusCode::INTERNAL_SERVER_ERROR, err).into_response());
+                }
+            }
+        }
+    }
+    let result = Json(ShortenRes { url: short_url });
     Ok((StatusCode::CREATED, result).into_response())
 }
 

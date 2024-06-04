@@ -9,18 +9,20 @@ fn main() {
     pool.execute(|| println!("{:?}: 执行", thread::current().id()));
     thread::sleep(Duration::from_secs(3));
 }
+#[allow(unused)]
 struct ThreadPool {
     workers: Vec<Worker>,
     sender: mpsc::Sender<Job>,
 }
+#[allow(unused)]
 struct Worker {
     id: usize,
     thread: JoinHandle<()>,
 }
 impl Worker {
-    fn new(id: usize, reciver: Arc<Mutex<mpsc::Receiver<Job>>>) -> Worker {
+    fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Job>>>) -> Worker {
         let thread = thread::spawn(move || {
-            while let Ok(job) = reciver.lock().unwrap().recv() {
+            while let Ok(job) = receiver.lock().unwrap().recv() {
                 println!("worker-{} starting do job", id);
                 job();
             }
@@ -46,6 +48,6 @@ impl ThreadPool {
         F: FnOnce() + Send + 'static,
     {
         let job = Box::new(f);
-        self.sender.send(job);
+        let _ = self.sender.send(job);
     }
 }

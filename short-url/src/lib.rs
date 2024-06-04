@@ -36,7 +36,7 @@ impl AppState {
 }
 #[derive(Error, Debug)]
 pub enum AppError {
-    #[error("pgdb slq error info : {0}")]
+    #[error("pgdb sql error info : {0}")]
     PgDbErr(#[from] sqlx::Error),
     #[error("duplicate key value violates unique constraint : {0}")]
     PgDuplicate(String),

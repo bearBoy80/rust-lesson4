@@ -77,7 +77,7 @@ impl State {
         }
     }
     pub async fn broadcast(&self, addr: SocketAddr, message: Arc<Message>) {
-        info!("broadcasting data :{} to clients",message);
+        info!("broadcasting data :{} to clients", message);
         for peer in self.peers.iter() {
             if peer.key() == &addr {
                 continue;

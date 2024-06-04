@@ -31,7 +31,7 @@ async fn main() -> Result<()> {
 }
 async fn process_client(stream: TcpStream, addr: SocketAddr, state: Arc<State>) -> Result<()> {
     let mut frame = Framed::new(stream, LinesCodec::new());
-    info!("send {} to client-{}","enter your name", addr);
+    info!("send {} to client-{}", "enter your name", addr);
     frame.send("input user name").await?;
     let username = match frame.next().await {
         Some(Ok(username)) => username,

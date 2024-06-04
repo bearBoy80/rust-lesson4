@@ -13,12 +13,11 @@ pub struct Url {
     pub origin_url: String,
 }
 pub async fn insert_short_url(db: &PgPool, origin_url: &str) -> anyhow::Result<Url, AppError> {
-    //let id = nanoid!(6);
-    let id = "WOo2AJ";
+    let id = nanoid!(6);
     let url = format!("http://{}/{}", ADDR, id);
     info!("insert_short_url- id:{:?} url :{:?}", id, url);
     let ret = sqlx::query_as(
-        "INSERT INTO urls (id, url,origin_url) VALUES ($1, $2,$3) 
+        "INSERT INTO urls (id, url,origin_url) VALUES ($1, $2,$3)
         ON CONFLICT(origin_url) DO UPDATE SET url=EXCLUDED.url RETURNING id,url,origin_url",
     )
     .bind(&id)
@@ -27,7 +26,7 @@ pub async fn insert_short_url(db: &PgPool, origin_url: &str) -> anyhow::Result<U
     .fetch_one(db)
     .await
     .map_err(|e| match e {
-        sqlx::Error::Database(dbe) if dbe.constraint() == Some("urls_pkey") => {
+        sqlx::Error::Database(db_error) if db_error.constraint() == Some("urls_pkey") => {
             AppError::PgDuplicate("urls_pkey".to_string())
         }
         _ => e.into(),
