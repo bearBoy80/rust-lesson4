@@ -5,6 +5,7 @@ use std::{
         Arc,
     },
     thread,
+    time::Duration,
 };
 
 use anyhow::anyhow;
@@ -30,7 +31,7 @@ impl<T> Receiver<T> {
     fn recv(&self) -> anyhow::Result<T> {
         if self
             .state
-            .compare_exchange(1, 0, Ordering::SeqCst, Ordering::SeqCst)
+            .compare_exchange(1, 2, Ordering::SeqCst, Ordering::SeqCst)
             .is_ok()
         {
             let v = self.data.swap(None);
@@ -45,7 +46,7 @@ impl<T> Sender<T> {
     fn send(&self, value: T) -> anyhow::Result<(), T> {
         if self
             .state
-            .compare_exchange(1, 2, Ordering::SeqCst, Ordering::SeqCst)
+            .compare_exchange(0, 1, Ordering::SeqCst, Ordering::SeqCst)
             .is_ok()
         {
             self.data.store(Some(Arc::new(value)));
@@ -75,6 +76,7 @@ fn main() {
         let _ = tx.send(value);
     });
     let receiver = thread::spawn(move || {
+        thread::sleep(Duration::from_secs(1));
         let value = rx.recv();
         println!("receiver value: {:?}", value);
     });
